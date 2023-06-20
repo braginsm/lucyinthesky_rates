@@ -2,8 +2,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lucyinthesky_rates/api_client/api_client.dart';
 import 'package:lucyinthesky_rates/res/strings.dart';
+import 'package:lucyinthesky_rates/service/currency_service.dart';
 import 'package:lucyinthesky_rates/service/user_config.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -14,8 +14,8 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final ApiClient apiClient = GetIt.I<ApiClient>();
-  final UserConfig userConfig = GetIt.I<UserConfig>();
+  final currencyService = GetIt.I<CurrencyService>();
+  final userConfig = GetIt.I<UserConfig>();
   var _currencies = <(String, String)>[];
   var _userCurrency = <String>[];
 
@@ -88,7 +88,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> getCurrencies() async {
-    final items = await apiClient.getCurrencies();
+    final items = await currencyService.getAvailable();
     final userCurrency = await userConfig.getUserCurrency() ?? [];
     final currentCurrencies = await userConfig.getCurrency() ?? [];
     final newCurrencies = items.entries.map((e) => (e.key, e.value)).toList()

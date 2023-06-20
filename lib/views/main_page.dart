@@ -1,8 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lucyinthesky_rates/api_client/api_client.dart';
 import 'package:lucyinthesky_rates/model/rates/rates.dart';
 import 'package:lucyinthesky_rates/res/strings.dart';
+import 'package:lucyinthesky_rates/service/rate_service.dart';
 import 'package:lucyinthesky_rates/service/user_config.dart';
 import 'package:lucyinthesky_rates/views/settings_page.dart';
 import 'package:lucyinthesky_rates/views/widgets/currency_list_item.dart';
@@ -17,8 +18,8 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final defaultCurrencies = ["USD", "EUR", "RUB"];
-  final ApiClient apiClient = GetIt.I<ApiClient>();
-  final UserConfig userConfig = GetIt.I<UserConfig>();
+  final rateService = GetIt.I<RateService>();
+  final userConfig = GetIt.I<UserConfig>();
 
   Rates? listCurrencies;
   Rates? yesterdayCurrencies;
@@ -88,22 +89,19 @@ class _MainPageState extends State<MainPage> {
         items = defaultCurrencies;
         userConfig.saveUserCurrency(defaultCurrencies);
       }
-      final todayData = await apiClient.getLatestList(symbols: items);
-      final yesterdayData = await apiClient.getDateList(
-        symbols: items,
-        date: DateTime.now().subtract(const Duration(days: 1)),
-      );
+      final todayData = await rateService.getLatest(symbols: items);
+      final yesterdayData = await rateService.getYesterday(symbols: items);
       setState(() {
         userCurrencies = items ?? [];
         listCurrencies = todayData;
         yesterdayCurrencies = yesterdayData;
       });
-    } catch (e) {
+    } on DioException catch (e) {
       setState(() {
         userCurrencies = [];
         listCurrencies = null;
         yesterdayCurrencies = null;
-        error = e.toString();
+        error = e.error.toString();
       });
     }
   }

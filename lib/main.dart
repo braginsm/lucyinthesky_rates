@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_config/flutter_config.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lucyinthesky_rates/api_client/api_client.dart';
+import 'package:lucyinthesky_rates/service/currency_service.dart';
+import 'package:lucyinthesky_rates/service/rate_service.dart';
 import 'package:lucyinthesky_rates/service/user_config.dart';
 import 'package:lucyinthesky_rates/views/main_page.dart';
 
@@ -42,7 +44,10 @@ Future<void> configureApp() async {
     }));
   final apiClient = ApiClient(dio);
   final userConfig = UserConfig();
+  final rateService = RateService(apiClient);
+  final currencyService = CurrencyService(apiClient);
 
-  GetIt.I.registerSingleton<ApiClient>(apiClient);
   GetIt.I.registerSingleton<UserConfig>(userConfig);
+  GetIt.I.registerSingleton<RateService>(rateService);
+  GetIt.I.registerSingleton<CurrencyService>(currencyService);
 }

@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:lucyinthesky_rates/model/rates/rates.dart';
-import 'package:lucyinthesky_rates/utils/formats.dart';
 
 class ApiClient {
   ApiClient(this.dio);
@@ -18,12 +17,11 @@ class ApiClient {
   }
 
   Future<Rates> getDateList({
-    required DateTime date,
+    required String date,
     List<String> symbols = const [],
   }) async {
-    final queryDate = dateApiFormat.format(date);
     final response = await dio.get(
-      '/historical/$queryDate.json',
+      '/historical/$date.json',
       queryParameters: {'symbols': symbols.join(',')},
     );
 
