@@ -1,16 +1,19 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_config/flutter_config.dart';
-import 'package:get_it/get_it.dart';
 import 'package:lucyinthesky_rates/api_client/api_client.dart';
 import 'package:lucyinthesky_rates/service/currency_service.dart';
 import 'package:lucyinthesky_rates/service/rate_service.dart';
 import 'package:lucyinthesky_rates/service/user_config.dart';
 import 'package:lucyinthesky_rates/views/main_page.dart';
+import 'package:provider/provider.dart';
 
 Future<void> main() async {
-  await configureApp();
-  runApp(const MyApp());
+  final providers = await configureApp();
+  runApp(MultiProvider(
+    providers: providers,
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -29,7 +32,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
-Future<void> configureApp() async {
+Future<List<Provider>> configureApp() async {
   WidgetsFlutterBinding.ensureInitialized();
   await FlutterConfig.loadEnvVariables();
   final dio = Dio(BaseOptions(
@@ -43,11 +46,10 @@ Future<void> configureApp() async {
       handler.next(options);
     }));
   final apiClient = ApiClient(dio);
-  final userConfig = UserConfig();
-  final rateService = RateService(apiClient);
-  final currencyService = CurrencyService(apiClient);
 
-  GetIt.I.registerSingleton<UserConfig>(userConfig);
-  GetIt.I.registerSingleton<RateService>(rateService);
-  GetIt.I.registerSingleton<CurrencyService>(currencyService);
+  return [
+    Provider<UserConfig>(create: (_) => UserConfig()),
+    Provider<RateService>(create: (_) => RateService(apiClient)),
+    Provider<CurrencyService>(create: (_) => CurrencyService(apiClient)),
+  ];
 }

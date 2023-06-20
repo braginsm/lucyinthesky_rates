@@ -1,10 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:lucyinthesky_rates/res/strings.dart';
 import 'package:lucyinthesky_rates/service/currency_service.dart';
 import 'package:lucyinthesky_rates/service/user_config.dart';
+import 'package:provider/provider.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -14,8 +14,6 @@ class SettingsPage extends StatefulWidget {
 }
 
 class _SettingsPageState extends State<SettingsPage> {
-  final currencyService = GetIt.I<CurrencyService>();
-  final userConfig = GetIt.I<UserConfig>();
   var _currencies = <(String, String)>[];
   var _userCurrency = <String>[];
 
@@ -88,6 +86,8 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Future<void> getCurrencies() async {
+    final currencyService = context.read<CurrencyService>();
+    final userConfig = context.read<UserConfig>();
     final items = await currencyService.getAvailable();
     final userCurrency = await userConfig.getUserCurrency() ?? [];
     final currentCurrencies = await userConfig.getCurrency() ?? [];
@@ -123,6 +123,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   onSave() async {
+    final userConfig = context.read<UserConfig>();
     await userConfig.saveCurrency(_currencies.map((e) => e.$1).toList());
     await userConfig.saveUserCurrency(
       _userCurrency.where((element) => _userCurrency.contains(element)).toList()

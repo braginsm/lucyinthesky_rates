@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:lucyinthesky_rates/model/rates/rates.dart';
 import 'package:lucyinthesky_rates/res/strings.dart';
 import 'package:lucyinthesky_rates/service/rate_service.dart';
@@ -8,6 +7,7 @@ import 'package:lucyinthesky_rates/service/user_config.dart';
 import 'package:lucyinthesky_rates/views/settings_page.dart';
 import 'package:lucyinthesky_rates/views/widgets/currency_list_item.dart';
 import 'package:lucyinthesky_rates/views/widgets/error_content.dart';
+import 'package:provider/provider.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -18,8 +18,6 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   final defaultCurrencies = ["USD", "EUR", "RUB"];
-  final rateService = GetIt.I<RateService>();
-  final userConfig = GetIt.I<UserConfig>();
 
   Rates? listCurrencies;
   Rates? yesterdayCurrencies;
@@ -84,6 +82,8 @@ class _MainPageState extends State<MainPage> {
       error = null;
     });
     try {
+      final userConfig = context.read<UserConfig>();
+      final rateService = context.read<RateService>();
       var items = await userConfig.getUserCurrency();
       if (items == null) {
         items = defaultCurrencies;
